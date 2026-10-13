@@ -38,6 +38,20 @@ class TestTicketClassification(unittest.TestCase):
         )
         self.assertEqual(determine_priority(message), "Low")
 
+    
+    def test_empty_message_is_rejected(self):
+        with self.assertRaises(ValueError):
+            categorize_ticket("")
+
+    def test_whitespace_message_is_rejected(self):
+        with self.assertRaises(ValueError):
+            categorize_ticket("   ")
+
+    def test_non_string_message_is_rejected(self):
+        with self.assertRaises(TypeError):
+            categorize_ticket(None)
+
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,16 @@
+
+def validate_message(message):
+    if not isinstance(message, str):
+        raise TypeError("Message must be a string.")
+
+    if not message.strip():
+        raise ValueError("Message cannot be empty.")
+
+    return message.strip()
+
+
 def categorize_ticket(message):
-    message = message.lower()
+    message = validate_message(message).lower() 
 
     if "refund" in message or "charged" in message or "payment" in message:
         return "Billing"
@@ -44,13 +55,20 @@ def determine_priority(message):
 
     return "Low"
 
+
 if __name__ == "__main__":
-    customer_message = input("Enter a customer support message: ")
+    try:
+        customer_message = input(
+            "Enter a customer support message: "
+        )
 
-    category = categorize_ticket(customer_message)
-    priority = determine_priority(customer_message)
+        category = categorize_ticket(customer_message)
+        priority = determine_priority(customer_message)
 
-    print("\n--- Ticket Details ---")
-    print("Message:", customer_message)
-    print("Category:", category)
-    print("Priority:", priority)
+        print("\n--- Ticket Details ---")
+        print("Message:", customer_message)
+        print("Category:", category)
+        print("Priority:", priority)
+
+    except (TypeError, ValueError) as error:
+        print("Invalid input:", error)
