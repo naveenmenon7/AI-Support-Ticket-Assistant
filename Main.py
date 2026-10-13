@@ -44,12 +44,13 @@ def determine_priority(message):
 
     return "Low"
 
-customer_message = input("Enter a customer support message: ")
+if __name__ == "__main__":
+    customer_message = input("Enter a customer support message: ")
 
-category = categorize_ticket(customer_message)
-priority = determine_priority(customer_message)
+    category = categorize_ticket(customer_message)
+    priority = determine_priority(customer_message)
 
-print("\n--- Ticket Details ---")
-print("Message:", customer_message)
-print("Category:", category)
-print("Priority:", priority)
+    print("\n--- Ticket Details ---")
+    print("Message:", customer_message)
+    print("Category:", category)
+    print("Priority:", priority)
