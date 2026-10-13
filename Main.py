@@ -14,8 +14,42 @@ def categorize_ticket(message):
         return "General Inquiry"
 
 
+def determine_priority(message):
+    message = message.lower()
+
+    high_priority_keywords = [
+        "charged twice",
+        "payment failed",
+        "crash",
+        "not working",
+        "urgent",
+        "cannot access",
+        ]
+
+    for keyword in high_priority_keywords:
+        if keyword in message:
+            return "High"
+
+
+    medium_priority_keywords = [
+        "password",
+        "login",
+        "error",
+        "refund",
+    ]
+
+    for keyword in medium_priority_keywords:
+        if keyword in message:
+            return "Medium"
+
+    return "Low"
+
 customer_message = input("Enter a customer support message: ")
 
 category = categorize_ticket(customer_message)
+priority = determine_priority(customer_message)
 
-print("Ticket Category:", category)
+print("\n--- Ticket Details ---")
+print("Message:", customer_message)
+print("Category:", category)
+print("Priority:", priority)
