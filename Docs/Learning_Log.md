@@ -55,3 +55,70 @@ Improve classification, add ticket priorities, and introduce
 automated tests.
 
 -------------------------------------------------------------------------------------------
+
+
+## Session 3: Ticket Priority Detection
+
+### Objective
+Extend the ticket classifier to assign a priority to each support message.
+
+### Features implemented
+- High priority detection
+- Medium priority detection
+- Low priority as the default
+- Separate function for priority determination
+
+### Concepts learned
+- Python lists
+- For loops
+- Keyword matching
+- Returning values from functions
+- Using multiple functions to process the same input
+
+### Testing
+- Duplicate payment message: High
+- Password-related message: Medium
+- General inquiry: Low
+
+### Status
+Completed. All three manual test cases passed.
+
+### Limitations
+Priority detection relies on predefined keywords and may not
+correctly interpret every message or determine its real-world urgency.
+
+### Next steps
+Introduce automated tests and improve input handling.
+
+----------------------------------------------------------------------------------------------
+
+
+## Session 4: Automated Testing
+
+### Objective
+Create automated tests for ticket classification and priority detection.
+
+### Concepts learned
+- Python's unittest framework
+- Test cases and assertions
+- Importing functions from another module
+- The __name__ == "__main__" guard
+- Test discovery and command-line options
+
+### Tests implemented
+- Billing ticket classification and priority
+- Account access classification and priority
+- Technical support classification and priority
+- General inquiry classification and priority
+
+### Verification
+All four automated tests passed.
+
+### Status
+Completed.
+
+### Next steps
+Improve classification rules and add edge-case tests.
+
+-------------------------------------------------------------------------------------------------
+
