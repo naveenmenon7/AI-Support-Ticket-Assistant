@@ -361,3 +361,37 @@ Classification still relies on predefined keywords and phrases. The application 
 Improve configuration and security, expand automated test coverage, integrate AI-powered classification, and prepare the application for portfolio presentation.
 
 \----------------------------------------------------------------------------------------------
+
+**## Session 11: Configuration and Project Security**
+
+**### Objective**
+Improve project configuration, protect local data, and make the application easier for other developers to set up.
+
+**### Improvements implemented**
+\- Updated `.gitignore` to exclude local SQLite databases
+\- Added rules for environment-specific configuration and secrets
+\- Created `requirements.txt` to document the Flask dependency
+\- Updated the README with dependency installation instructions
+
+**### Concepts learned**
+\- Managing Python project dependencies
+\- Using `requirements.txt` for reproducible setup
+\- Protecting local databases and configuration files
+\- Understanding the limitations of `.gitignore` for files already tracked by Git
+\- Preparing a repository for other developers to clone and run
+
+**### Testing**
+\- Installed dependencies using `python -m pip install -r requirements.txt`
+\- Ran the complete automated test suite
+\- Verified that the application continued to work after configuration changes
+
+**### Verification**
+All 22 automated tests passed using `python -m unittest discover -s tests -v`.
+
+**### Status**
+Completed. The project now has documented dependencies and improved Git ignore rules for local data and configuration.
+
+**### Next steps**
+Integrate AI-powered ticket classification, expand automated testing, and prepare the application for portfolio presentation.
+
+\----------------------------------------------------------------------------------------------

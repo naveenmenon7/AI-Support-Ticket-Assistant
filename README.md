@@ -101,3 +101,5 @@ This project has helped me practise Python functions, conditional logic, input v
 
 - [GitHub](https://github.com/naveenmenon7)
 - [Portfolio](https://naveenmenon7.github.io/)
+
+python -m pip install -r requirements.txt
