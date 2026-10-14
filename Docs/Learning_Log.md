@@ -241,3 +241,38 @@ The classifier still relies on predefined keywords and phrases. The negation han
 Improve classification accuracy, expand edge-case testing, and prepare the project for portfolio presentation.
 
 \----------------------------------------------------------------------------------------------
+
+**## Session 8: Edge-Case Testing**
+
+**### Objective**
+Expand automated test coverage to identify limitations in rule-based ticket classification and priority detection.
+
+**### Tests implemented**
+\- Password manager question
+\- Message containing both billing and account-access issues
+\- Application not working
+\- Negated application crash
+\- Existing billing, account access, technical support, and general inquiry tests
+\- Input validation and priority edge cases
+
+**### Concepts learned**
+\- Edge-case testing
+\- Test-driven development
+\- Understanding expected versus actual behaviour
+\- Testing messages containing multiple keywords
+\- Recognizing limitations of exact phrase matching
+\- Distinguishing passing tests from comprehensive coverage
+
+**### Verification**
+All 14 automated tests passed using `python -m unittest discover -s tests -v`.
+
+**### Status**
+Completed. The test suite covers additional message variations and documents several limitations of keyword-based classification.
+
+**### Limitations**
+The classifier still relies on predefined keywords and phrases. Passing individual tests does not guarantee that every variation of a customer message will be classified correctly.
+
+**### Next steps**
+Improve the priority detection logic, add more meaningful context-handling tests, and prepare the application for portfolio presentation.
+
+\----------------------------------------------------------------------------------------------

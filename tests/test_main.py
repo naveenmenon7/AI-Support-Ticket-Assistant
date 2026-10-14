@@ -78,5 +78,37 @@ class TestTicketClassification(unittest.TestCase):
         )
 
 
+    
+    def test_password_keyword_in_general_question(self):
+        message = "What password manager do you recommend?"
+
+        self.assertEqual(
+            categorize_ticket(message),
+            "Account Access"
+        )
+        self.assertEqual(determine_priority(message), "Medium")
+
+    def test_message_with_multiple_issue_types(self):
+        message = "I cannot log in and my payment failed."
+
+        self.assertEqual(categorize_ticket(message), "Billing")
+        self.assertEqual(determine_priority(message), "High")
+
+    def test_application_not_working_is_high_priority(self):
+        message = "The application is not working."
+
+        self.assertEqual(determine_priority(message), "High")
+
+    def test_negated_crash_is_not_high_priority(self):
+        message = "The application is not crashing."
+
+        self.assertNotEqual(
+            determine_priority(message),
+            "High"
+        )
+
+
+
+
 if __name__ == "__main__":
     unittest.main()
