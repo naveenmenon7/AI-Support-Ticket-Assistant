@@ -107,6 +107,34 @@ class TestTicketClassification(unittest.TestCase):
             "High"
         )
 
+    
+    def test_cannot_access_account_is_high_priority(self):
+        message = "I cannot access my account."
+
+        self.assertEqual(
+            determine_priority(message),
+            "High"
+        )
+
+    def test_general_account_question_is_medium_priority(self):
+        message = "I have a question about my account."
+
+        self.assertEqual(
+            determine_priority(message),
+            "Medium"
+        )
+
+    
+    def test_unable_to_access_account_is_high_priority(self):
+        message = "I am unable to access my account."
+
+        self.assertEqual(
+            determine_priority(message),
+            "High"
+        )
+
+
+
 
 
 

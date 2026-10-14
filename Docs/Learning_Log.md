@@ -276,3 +276,41 @@ The classifier still relies on predefined keywords and phrases. Passing individu
 Improve the priority detection logic, add more meaningful context-handling tests, and prepare the application for portfolio presentation.
 
 \----------------------------------------------------------------------------------------------
+
+**## Session 9: Improving Priority Detection**
+
+**### Objective**
+Improve high-priority ticket detection by recognizing additional variations of customer messages.
+
+**### Improvements implemented**
+\- Added "unable to access" to the high-priority phrase list
+\- Improved detection of account-access issues
+\- Added an automated test for the new phrase
+\- Preserved the existing priority classification rules
+
+**### Concepts learned**
+\- Improving rule-based classification
+\- Recognizing different ways users describe the same issue
+\- Regression testing
+\- Keeping automated tests aligned with code changes
+\- Making small, targeted improvements without rewriting the entire system
+
+**### Testing**
+\- Verified existing billing, account access, technical support, and general inquiry cases
+\- Tested "I cannot access my account"
+\- Tested "I am unable to access my account"
+\- Verified that ordinary account questions remain Medium priority
+
+**### Verification**
+All 17 automated tests passed using `python -m unittest discover -s tests -v`.
+
+**### Status**
+Completed. The classifier recognizes an additional account-access phrase, and automated coverage has been expanded.
+
+**### Limitations**
+The classifier still relies on predefined keywords and phrases. It does not fully understand context, sentiment, or the real-world urgency of a message.
+
+**### Next steps**
+Perform a final code review, improve the README, prepare realistic example outputs, and make the project ready to showcase on the portfolio website.
+
+\----------------------------------------------------------------------------------------------
