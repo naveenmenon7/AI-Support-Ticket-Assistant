@@ -1,184 +1,397 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Support Ticket Assistant</title>
+    <meta name="theme-color" content="#f4f4f5">
+    <title>Support Desk | AI Support Ticket Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dialog = document.getElementById("ticket-dialog");
+            const openButton = document.getElementById("new-ticket-button");
+            const closeButtons = document.querySelectorAll("[data-close-dialog]");
+            const messageField = document.getElementById("message");
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f9;
-            margin: 0;
-            padding: 40px 20px;
-            color: #1f2937;
-        }
+            openButton?.addEventListener("click", () => {
+                if (typeof dialog.showModal === "function") {
+                    dialog.showModal();
+                    messageField?.focus();
+                }
+            });
 
-        .container {
-            max-width: 650px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        }
+            closeButtons.forEach((button) => {
+                button.addEventListener("click", () => dialog.close());
+            });
 
-        h1 {
-            margin-top: 0;
-            color: #172554;
-        }
+            dialog?.addEventListener("click", (event) => {
+                if (event.target === dialog) dialog.close();
+            });
 
-        p {
-            color: #64748b;
-            line-height: 1.6;
-        }
-
-        label {
-            display: block;
-            margin: 24px 0 10px;
-            font-weight: bold;
-        }
-
-        textarea {
-            box-sizing: border-box;
-            width: 100%;
-            min-height: 140px;
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font: inherit;
-            resize: vertical;
-        }
-
-        textarea:focus {
-            outline: 2px solid #93c5fd;
-            border-color: #2563eb;
-        }
-
-        button {
-            margin-top: 16px;
-            padding: 12px 20px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #1d4ed8;
-        }
-    </style>
+            if (document.body.dataset.openTicketDialog === "true") {
+                dialog?.showModal();
+            }
+        });
+    </script>
 </head>
+<body data-open-ticket-dialog="{{ 'true' if error else 'false' }}">
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+            <a class="sidebar-brand" href="{{ url_for('home') }}" aria-label="Support Desk home">
+                <span class="brand-mark" aria-hidden="true">NM</span>
+                <span class="brand-name">NM's <span>Support Desk</span></span>
+            </a>
 
-<body>
-    <main class="container">
-        <h1>AI Support Ticket Assistant</h1>
+            <div class="sidebar-section-label">WORKSPACE</div>
+            <nav class="sidebar-nav">
+                <a class="nav-link {% if view == 'all' %}active{% endif %}"
+                   href="{{ url_for('home') }}">
+                    <span class="nav-icon" aria-hidden="true">▦</span><span>Tickets</span>
+                    {% if view == 'all' %}<span class="nav-indicator"></span>{% endif %}
+                </a>
+                <a class="nav-link {% if view == 'spam' %}active{% endif %}"
+                   href="{{ url_for('home', view='spam') }}">
+                    <span class="nav-icon" aria-hidden="true">⊘</span><span>Spam</span>
+                    {% if view == 'spam' %}<span class="nav-indicator"></span>{% endif %}
+                </a>
+                <a class="nav-link {% if view == 'trash' %}active{% endif %}"
+                   href="{{ url_for('home', view='trash') }}">
+                    <span class="nav-icon" aria-hidden="true">▤</span><span>Trash</span>
+                    {% if view == 'trash' %}<span class="nav-indicator"></span>{% endif %}
+                </a>
+            </nav>
 
-        <p>
-            Submit a customer support message to categorize the issue
-            and determine its priority.
-        </p>
+            <div class="sidebar-bottom">
+                <div class="sidebar-section-label">PREFERENCES</div>
+                <label class="theme-label" for="theme-select">Appearance</label>
+                <select id="theme-select" aria-label="Choose appearance" class="theme-select">
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
 
-        <form action="/classify" method="POST">
-            <label for="message">Customer Support Message</label>
+                <label class="theme-label accent-label" for="accent-select">Accent Colour</label>
+                <select id="accent-select" aria-label="Choose accent colour" class="theme-select accent-select">
+                    <option value="aqua-blue">Aqua Blue</option>
+                    <option value="pink">Pink</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="red">Red</option>
+                </select>
+                
+            </div>
+        </aside>
 
-            <textarea
-                id="message"
-                name="message"
-                placeholder="Describe the customer's issue..."
-                required
-            ></textarea>
+        <div class="mobile-scrim" id="mobile-scrim"></div>
 
-            <button type="submit">Analyze Ticket</button>
-        </form>
+        <main class="main-area">
+            <header class="topbar">
+                <button class="icon-button menu-toggle" id="menu-toggle"
+                        type="button" aria-label="Open navigation" aria-controls="sidebar"
+                        aria-expanded="false">
+                    <span aria-hidden="true">☰</span>
+                </button>
+                <div class="topbar-context">
+                    <span class="breadcrumb-muted">Workspace</span>
+                    <span class="breadcrumb-divider">/</span>
+                    <span>{% if view == 'spam' %}Spam{% elif view == 'trash' %}Trash{% else %}Tickets{% endif %}</span>
+                </div>
+                <div class="topbar-actions">
+                    <span class="workspace-status sample-system-label">// Sample AI Support Ticket System</span>
+                    <button type="button" class="primary-button new-ticket-button" id="new-ticket-button">
+                        <span aria-hidden="true">＋</span> New Ticket
+                    </button>
+                </div>
+            </header>
 
-        
-        {% if error %}
-            <section>
-                <h2>Invalid Message</h2>
-                <p>{{ error }}</p>
-            </section>
-        {% endif %}
-
-        
-        {% if category and priority %}
-            <section>
-                <h2>Ticket Analysis</h2>
-
-                <p><strong>Message:</strong> {{ message }}</p>
-                <p><strong>Category:</strong> {{ category }}</p>
-                <p><strong>Priority:</strong> {{ priority }}</p>
-
-                {% if request.args.get('summary') %}
-                    <p>
-                        <strong>Summary:</strong>
-                        {{ request.args.get('summary') }}
-                    </p>
+            <div class="content-area">
+                {% if error %}
+                <section class="notice notice-error" role="alert">
+                    <strong>Something went wrong</strong>
+                    <p>{{ error }}</p>
+                </section>
                 {% endif %}
 
-                {% if request.args.get('suggested_response') %}
-                    <p>
-                        <strong>Suggested Response:</strong>
-                        {{ request.args.get('suggested_response') }}
-                    </p>
+                {% if category and priority %}
+                <section class="analysis-result" aria-live="polite">
+                    <div class="analysis-result-header">
+                        <div>
+                            <p class="eyebrow">ANALYSIS COMPLETE</p>
+                            <h2>Ticket analysis result</h2>
+                        </div>
+                        <span class="result-check" aria-hidden="true">✓</span>
+                    </div>
+                    <div class="analysis-result-grid">
+                        <div class="result-field result-message-field">
+                            <span class="field-label">Customer message</span>
+                            <p>{{ message }}</p>
+                        </div>
+                        <div class="result-field">
+                            <span class="field-label">Category</span>
+                            <strong>{{ category }}</strong>
+                        </div>
+                        <div class="result-field">
+                            <span class="field-label">Priority</span>
+                            <span class="priority-badge {% if priority == 'High' %}priority-high{% elif priority == 'Medium' %}priority-medium{% else %}priority-low{% endif %}">{{ priority }}</span>
+                        </div>
+                        {% if summary %}
+                        <div class="result-field">
+                            <span class="field-label">Summary</span>
+                            <p>{{ summary }}</p>
+                        </div>
+                        {% endif %}
+                        {% if suggested_response %}
+                        <div class="result-field suggested-response">
+                            <span class="field-label">Suggested response</span>
+                            <p>{{ suggested_response }}</p>
+                            <small>Template response — review before sending.</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </section>
                 {% endif %}
-            </section>
-        {% endif %}
 
+                <section class="page-heading">
+                    <div>
+                        <p class="eyebrow">SUPPORT WORKSPACE</p>
+                        <h1>
+                            {% if view == 'spam' %}Spam
+                            {% elif view == 'trash' %}Trash
+                            {% elif status %}{{ status }} Tickets
+                            {% else %}Tickets{% endif %}
+                        </h1>
+                        <p class="page-description">Review customer requests, track priority, and keep your support queue organized.</p>
+                    </div>
+                    <div class="heading-count">
+                        <strong>{{ tickets|length }}</strong>
+                        <span>{% if tickets|length == 1 %}Ticket{% else %}Tickets{% endif %} Shown</span>
+                    </div>
+                </section>
 
-        
-        <hr>
+                <section class="ticket-workspace" aria-label="Ticket management">
+                    <div class="workspace-toolbar">
+                        <form action="{{ url_for('home') }}" method="GET" class="search-form">
+                            <span class="search-icon" aria-hidden="true">⌕</span>
+                            <input type="search" name="search" value="{{ search }}"
+                                   placeholder="Search ticket messages..." aria-label="Search ticket messages">
+                            {% if view != 'all' %}<input type="hidden" name="view" value="{{ view }}">{% endif %}
+                            {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+                            <button type="submit" class="search-button">Search</button>
+                        </form>
+                        <div class="toolbar-right">
+                            {% if search %}
+                            <a class="clear-search" href="{{ url_for('home', view=view, status=status or None) }}">Clear search</a>
+                            {% endif %}
+                            <a class="filter-button clear-filters-button"
+                               href="{{ url_for('home', view=view) }}">
+                                <span aria-hidden="true">↺</span> Clear Filters
+                            </a>
+                        </div>
+                    </div>
 
-        <section>
-            <h2>Ticket History</h2>
-
-            {% if tickets %}
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="text-align: left; padding: 8px;">ID</th>
-                            <th style="text-align: left; padding: 8px;">Message</th>
-                            <th style="text-align: left; padding: 8px;">Category</th>
-                            <th style="text-align: left; padding: 8px;">Priority</th>
-                            <th style="text-align: left; padding: 8px;">Created</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        {% for ticket in tickets %}
-                            <tr>
-                                <td style="padding: 8px;">
-                                    {{ ticket.id }}
-                                </td>
-
-                                <td style="padding: 8px;">
-                                    {{ ticket.message }}
-                                </td>
-
-                                <td style="padding: 8px;">
-                                    {{ ticket.category }}
-                                </td>
-
-                                <td style="padding: 8px;">
-                                    {{ ticket.priority }}
-                                </td>
-
-                                <td style="padding: 8px;">
-                                    {{ ticket.created_at }}
-                                </td>
-                            </tr>
+                    <nav class="ticket-tabs" aria-label="Ticket filters">
+                        <a href="{{ url_for('home', search=search) }}"
+                           {% if view == 'all' and not status %}aria-current="page"{% endif %}>All Tickets</a>
+                        {% for filter_status in ['Open', 'Pending', 'Closed'] %}
+                        <a href="{{ url_for('home', status=filter_status, search=search) }}"
+                           {% if view == 'all' and status == filter_status %}aria-current="page"{% endif %}>{{ filter_status }}</a>
                         {% endfor %}
-                    </tbody>
-                </table>
-            {% else %}
-                <p>No tickets have been submitted yet.</p>
-            {% endif %}
-        </section>
+                        <a href="{{ url_for('home', view='spam', search=search) }}"
+                           {% if view == 'spam' %}aria-current="page"{% endif %}>Spam</a>
+                        <a href="{{ url_for('home', view='trash', search=search) }}"
+                           {% if view == 'trash' %}aria-current="page"{% endif %}>Trash</a>
+                    </nav>
 
+                    {% if tickets %}
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="id-column"><button type="button" class="sort-button" data-sort="id">ID <span class="sort-indicator">↕</span></button></th>
+                                    <th scope="col"><span class="actions-heading">Ticket Details</span></th>
+                                    <th scope="col"><button type="button" class="sort-button" data-sort="category">Category <span class="sort-indicator">↕</span></button></th>
+                                    <th scope="col"><button type="button" class="sort-button" data-sort="priority">Priority <span class="sort-indicator">↕</span></button></th>
+                                    <th scope="col"><button type="button" class="sort-button" data-sort="created">Created <span class="sort-indicator">↕</span></button></th>
+                                    <th scope="col"><button type="button" class="sort-button" data-sort="status">Status <span class="sort-indicator">↕</span></button></th>
+                                    <th scope="col" class="actions-column"><span class="actions-heading">Actions</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in tickets %}
+                                <tr>
+                                    <td class="ticket-id" data-value="{{ ticket.id }}">#{{ ticket.id }}</td>
+                                    <td class="ticket-message-cell" data-value="{{ ticket.message|e }}">
+                                        <div class="ticket-message-title">{{ ticket.message }}</div>
+                                        <div class="ticket-subtitle">Customer support request</div>
+                                    </td>
+                                    <td data-value="{{ ticket.category }}"><span class="category-label">{{ ticket.category }}</span></td>
+                                    <td data-value="{{ ticket.priority }}">
+                                        <span class="priority-badge {% if ticket.priority == 'High' %}priority-high{% elif ticket.priority == 'Medium' %}priority-medium{% else %}priority-low{% endif %}">
+                                            <span class="priority-dot"></span>{{ ticket.priority }}
+                                        </span>
+                                    </td>
+                                    <td class="date-cell" data-value="{{ ticket.created_at }}">{{ ticket.created_at }}</td>
+                                    <td data-value="{{ ticket.status }}">
+                                        <span class="status-badge {% if ticket.status == 'Open' %}status-open{% elif ticket.status == 'Pending' %}status-pending{% else %}status-closed{% endif %}">
+                                            {{ ticket.status }}
+                                        </span>
+                                    </td>
+                                    <td class="ticket-actions">
+                                        {% if view == 'trash' %}
+                                        <form action="{{ url_for('restore_trashed_ticket', ticket_id=ticket.id) }}" method="POST">
+                                            <button type="submit" class="table-action restore-action">Restore</button>
+                                        </form>
+                                        {% elif view == 'spam' %}
+                                        <form action="{{ url_for('restore_trashed_ticket', ticket_id=ticket.id) }}" method="POST">
+                                            <button type="submit" class="table-action restore-action">Restore</button>
+                                        </form>
+                                        <form action="{{ url_for('trash_ticket', ticket_id=ticket.id) }}" method="POST">
+                                            <button type="submit" class="table-action danger-action">Trash</button>
+                                        </form>
+                                        {% else %}
+                                        <form action="{{ url_for('change_ticket_status', ticket_id=ticket.id) }}" method="POST" class="status-update-form">
+                                            <input type="hidden" name="return_to" value="{{ request.full_path }}">
+                                            <select name="status" aria-label="Status for ticket {{ ticket.id }}">
+                                                {% for option in ['Open', 'Pending', 'Closed'] %}
+                                                <option value="{{ option }}" {% if ticket.status == option %}selected{% endif %}>{{ option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <button type="submit" class="table-action">Update</button>
+                                        </form>
+                                        <div class="secondary-actions">
+                                            <form action="{{ url_for('mark_ticket_spam', ticket_id=ticket.id) }}" method="POST">
+                                                <button type="submit" class="table-action">Spam</button>
+                                            </form>
+                                            <form action="{{ url_for('trash_ticket', ticket_id=ticket.id) }}" method="POST">
+                                                <button type="submit" class="table-action danger-action">Trash</button>
+                                            </form>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon" aria-hidden="true">⌕</div>
+                        <h2>
+                            {% if search %}No matching tickets
+                            {% elif view == 'spam' %}No spam tickets
+                            {% elif view == 'trash' %}Trash is empty
+                            {% else %}No tickets in this view{% endif %}
+                        </h2>
+                        <p>{% if search %}Try another search term or clear your search.{% else %}Tickets matching this view will appear here.{% endif %}</p>
+                        {% if view == 'all' and not status %}
+                        <button type="button" class="primary-button" data-open-dialog>＋ Create your first ticket</button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </section>
 
-    </main>
+                <footer class="app-footer">
+                    <span>Support Desk <span class="footer-separator">·</span> AI Support Ticket Assistant</span>
+                    <span>Built with Flask and SQLite</span>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <dialog class="ticket-dialog" id="ticket-dialog" aria-labelledby="dialog-title">
+        <div class="dialog-header">
+            <div>
+                <p class="eyebrow">NEW REQUEST</p>
+                <h2 id="dialog-title">Analyze a ticket</h2>
+                <p>Enter a customer's message to categorize and prioritize it.</p>
+            </div>
+            <button type="button" class="dialog-close" data-close-dialog aria-label="Close dialog">×</button>
+        </div>
+        <form action="{{ url_for('classify') }}" method="POST" class="ticket-form">
+            <label for="message">Customer support message</label>
+            <textarea id="message" name="message" placeholder="For example: I was charged twice for my subscription..." required>{{ message if error else '' }}</textarea>
+            <p class="form-helper">Your message will be analyzed and saved to the local ticket queue.</p>
+            <div class="dialog-actions">
+                <button type="button" class="secondary-button" data-close-dialog>Cancel</button>
+                <button type="submit" class="primary-button">Analyze ticket <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </dialog>
+
+    <script>
+        (() => {
+            const sidebar = document.getElementById("sidebar");
+            const toggle = document.getElementById("menu-toggle");
+            const scrim = document.getElementById("mobile-scrim");
+            const dialog = document.getElementById("ticket-dialog");
+            const sortPriority = { "High": 3, "Medium": 2, "Low": 1 };
+            const sortStatus = { "Open": 1, "Pending": 2, "Closed": 3 };
+            document.querySelectorAll(".sort-button").forEach((button) => {
+                button.addEventListener("click", () => {
+                    const table = button.closest("table");
+                    const body = table?.querySelector("tbody");
+                    if (!body) return;
+                    const key = button.dataset.sort;
+                    const nextDirection = button.dataset.direction === "asc" ? "desc" : "asc";
+                    document.querySelectorAll(".sort-button").forEach((other) => {
+                        if (other !== button) {
+                            delete other.dataset.direction;
+                            const indicator = other.querySelector(".sort-indicator");
+                            if (indicator) indicator.textContent = "↕";
+                        }
+                    });
+                    button.dataset.direction = nextDirection;
+                    const columnIndex = { id: 0, message: 1, category: 2, priority: 3, created: 4, status: 5 }[key];
+                    const rows = Array.from(body.querySelectorAll("tr"));
+                    const valueFor = (row) => {
+                        const cell = row.cells[columnIndex];
+                        const raw = (cell?.dataset.value || cell?.innerText || "").trim();
+                        if (key === "id") return Number(raw.replace("#", ""));
+                        if (key === "priority") return sortPriority[raw] || 0;
+                        if (key === "status") return sortStatus[raw] || 0;
+                        return raw.toLocaleLowerCase();
+                    };
+                    rows.sort((a, b) => {
+                        const left = valueFor(a), right = valueFor(b);
+                        const result = typeof left === "number" && typeof right === "number"
+                            ? left - right : String(left).localeCompare(String(right));
+                        return nextDirection === "asc" ? result : -result;
+                    });
+                    rows.forEach(row => body.appendChild(row));
+                    const indicator = button.querySelector(".sort-indicator");
+                    if (indicator) indicator.textContent = nextDirection === "asc" ? "↑" : "↓";
+                });
+            });
+
+            const accentSelect = document.getElementById("accent-select");
+            const savedAccent = localStorage.getItem("supportDeskAccent") || "pink";
+            const allowedAccents = ["aqua-blue", "pink", "yellow", "red"];
+
+            document.documentElement.dataset.accent = allowedAccents.includes(savedAccent) ? savedAccent : "pink";
+            accentSelect.value = document.documentElement.dataset.accent;
+            accentSelect.addEventListener("change", () => {
+                document.documentElement.dataset.accent = accentSelect.value;
+                localStorage.setItem("supportDeskAccent", accentSelect.value);
+            });
+
+            const closeSidebar = () => {
+                sidebar.classList.remove("sidebar-open");
+                scrim.classList.remove("scrim-visible");
+                toggle.setAttribute("aria-expanded", "false");
+            };
+
+            toggle.addEventListener("click", () => {
+                const open = sidebar.classList.toggle("sidebar-open");
+                scrim.classList.toggle("scrim-visible", open);
+                toggle.setAttribute("aria-expanded", String(open));
+            });
+            scrim.addEventListener("click", closeSidebar);
+            sidebar.querySelectorAll("a").forEach(link => link.addEventListener("click", closeSidebar));
+
+            document.querySelectorAll("[data-open-dialog]").forEach(button => {
+                button.addEventListener("click", () => dialog.showModal());
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -1,6 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
 from main import categorize_ticket, determine_priority
-from database import initialize_database, save_ticket, get_all_tickets
+from database import (
+    initialize_database,
+    save_ticket,
+    get_all_tickets,
+    update_ticket_status,
+    move_ticket_to_spam,
+    move_ticket_to_trash,
+    restore_ticket,
+)
 from ai_service import generate_mock_response
 
 app = Flask(__name__)
@@ -9,17 +17,42 @@ initialize_database()
 
 
 
+
 @app.route("/")
 def home():
-    tickets = get_all_tickets()
+    search = request.args.get("search", "").strip()
+    status = request.args.get("status", "").strip() or None
+    view = request.args.get("view", "all").strip()
+
+    valid_statuses = {"Open", "Pending", "Closed"}
+    valid_views = {"all", "spam", "trash"}
+
+    if status not in valid_statuses:
+        status = None
+
+    if view not in valid_views:
+        view = "all"
+
+    tickets = get_all_tickets(
+        search=search,
+        status=status,
+        view=view
+    )
 
     return render_template(
         "index.html",
         tickets=tickets,
+        search=search,
+        status=status or "",
+        view=view,
         message=request.args.get("message"),
         category=request.args.get("category"),
-        priority=request.args.get("priority")
+        priority=request.args.get("priority"),
+        summary=request.args.get("summary"),
+        suggested_response=request.args.get("suggested_response"),
+        error=request.args.get("error")
     )
+
 
 
 
@@ -58,6 +91,41 @@ def classify():
             error=str(error),
             tickets=tickets
         ), 400
+
+    
+@app.route("/tickets/<int:ticket_id>/status", methods=["POST"])
+def change_ticket_status(ticket_id):
+    status = request.form.get("status", "")
+    return_to = request.form.get("return_to", "/")
+
+    try:
+        updated = update_ticket_status(ticket_id, status)
+    except ValueError:
+        return redirect(url_for("home", error="Invalid ticket status."))
+
+    if not updated:
+        return redirect(url_for("home", error="Ticket could not be updated."))
+
+    return redirect(return_to if return_to.startswith("/") and not return_to.startswith("//") else url_for("home"))
+
+
+@app.route("/tickets/<int:ticket_id>/spam", methods=["POST"])
+def mark_ticket_spam(ticket_id):
+    move_ticket_to_spam(ticket_id)
+    return redirect(url_for("home", view="spam"))
+
+
+@app.route("/tickets/<int:ticket_id>/trash", methods=["POST"])
+def trash_ticket(ticket_id):
+    move_ticket_to_trash(ticket_id)
+    return redirect(url_for("home", view="trash"))
+
+
+@app.route("/tickets/<int:ticket_id>/restore", methods=["POST"])
+def restore_trashed_ticket(ticket_id):
+    restore_ticket(ticket_id)
+    return redirect(url_for("home"))
+
 
 
 

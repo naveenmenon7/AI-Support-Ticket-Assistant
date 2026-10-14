@@ -395,3 +395,33 @@ Completed. The project now has documented dependencies and improved Git ignore r
 Integrate AI-powered ticket classification, expand automated testing, and prepare the application for portfolio presentation.
 
 \----------------------------------------------------------------------------------------------
+
+## Session 12 — Mock AI Service Integration
+
+### What I built
+- Created a separate `ai_service.py` module to validate structured JSON responses.
+- Added validation for categories, priorities, required fields, and invalid responses.
+- Implemented a mock response service using the existing rule-based classifier.
+- Connected the mock service to the Flask application.
+- Displayed the ticket summary and suggested support response in the web interface.
+- Preserved SQLite ticket history and the existing classifier.
+
+### Testing
+- Added unit tests for response validation and mock service behavior.
+- Used Python's `unittest` and `unittest.mock` to test simulated AI responses without external API calls.
+- Verified the application through the local Flask interface.
+
+### Important limitation
+The current implementation does not use a real AI model. The summary is derived from the submitted message, and the suggested reply is a predefined template. This approach allows development and testing without paid API requests.
+
+### What I learned
+- How to separate service logic from Flask route handlers.
+- How to validate structured JSON data.
+- How to simulate external service responses in unit tests.
+- How to extend an existing application without replacing its working classifier.
+
+### Next steps
+- Improve the user interface and error handling.
+- Expand automated tests for Flask integration.
+- Update project documentation.
+- Consider local AI inference using Ollama in the future, with no paid API dependency.
