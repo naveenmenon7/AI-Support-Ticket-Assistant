@@ -1,4 +1,3 @@
-
 def validate_message(message):
     if not isinstance(message, str):
         raise TypeError("Message must be a string.")
