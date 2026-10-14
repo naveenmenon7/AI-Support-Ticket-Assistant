@@ -1,0 +1,168 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support Ticket Assistant</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 40px 20px;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        label {
+            display: block;
+            margin: 24px 0 10px;
+            font-weight: bold;
+        }
+
+        textarea {
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 140px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        button {
+            margin-top: 16px;
+            padding: 12px 20px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <h1>AI Support Ticket Assistant</h1>
+
+        <p>
+            Submit a customer support message to categorize the issue
+            and determine its priority.
+        </p>
+
+        <form action="/classify" method="POST">
+            <label for="message">Customer Support Message</label>
+
+            <textarea
+                id="message"
+                name="message"
+                placeholder="Describe the customer's issue..."
+                required
+            ></textarea>
+
+            <button type="submit">Analyze Ticket</button>
+        </form>
+
+        
+        {% if error %}
+            <section>
+                <h2>Invalid Message</h2>
+                <p>{{ error }}</p>
+            </section>
+        {% endif %}
+
+        {% if category and priority %}
+            <section>
+                <h2>Ticket Analysis</h2>
+
+                <p><strong>Message:</strong> {{ message }}</p>
+                <p><strong>Category:</strong> {{ category }}</p>
+                <p><strong>Priority:</strong> {{ priority }}</p>
+            </section>
+        {% endif %}
+
+        
+        <hr>
+
+        <section>
+            <h2>Ticket History</h2>
+
+            {% if tickets %}
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 8px;">ID</th>
+                            <th style="text-align: left; padding: 8px;">Message</th>
+                            <th style="text-align: left; padding: 8px;">Category</th>
+                            <th style="text-align: left; padding: 8px;">Priority</th>
+                            <th style="text-align: left; padding: 8px;">Created</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for ticket in tickets %}
+                            <tr>
+                                <td style="padding: 8px;">
+                                    {{ ticket.id }}
+                                </td>
+
+                                <td style="padding: 8px;">
+                                    {{ ticket.message }}
+                                </td>
+
+                                <td style="padding: 8px;">
+                                    {{ ticket.category }}
+                                </td>
+
+                                <td style="padding: 8px;">
+                                    {{ ticket.priority }}
+                                </td>
+
+                                <td style="padding: 8px;">
+                                    {{ ticket.created_at }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No tickets have been submitted yet.</p>
+            {% endif %}
+        </section>
+
+
+    </main>
+</body>
+</html>

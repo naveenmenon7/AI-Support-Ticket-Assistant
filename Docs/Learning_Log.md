@@ -314,3 +314,50 @@ The classifier still relies on predefined keywords and phrases. It does not full
 Perform a final code review, improve the README, prepare realistic example outputs, and make the project ready to showcase on the portfolio website.
 
 \----------------------------------------------------------------------------------------------
+
+**## Session 10: Flask Web Application and SQLite Integration**
+
+**### Objective**
+Extend the command-line ticket classifier into a browser-based application with persistent ticket storage.
+
+**### Features implemented**
+\- Created a web interface using Flask
+\- Added a form for submitting customer support messages
+\- Connected Flask to the existing Python classification functions
+\- Displayed ticket categories and priorities in the browser
+\- Created an SQLite database to store ticket records
+\- Implemented ticket history with message, category, priority, and timestamp
+\- Applied the Post/Redirect/Get pattern to prevent duplicate submissions when refreshing the results page
+\- Added automated tests for Flask routes and database operations
+
+**### Concepts learned**
+\- Flask routes and HTTP GET and POST requests
+\- HTML forms and server-side template rendering
+\- Integrating existing Python modules into a web application
+\- SQLite tables, database connections, and SQL queries
+\- Persistent data storage
+\- The Post/Redirect/Get pattern
+\- Flask's test client and temporary test databases
+\- Automated testing of web application behaviour
+
+**### Testing**
+\- Verified that the homepage loads successfully
+\- Tested ticket submission and database persistence
+\- Verified that refreshing the page does not resubmit a ticket
+\- Tested rejection of invalid messages
+\- Confirmed that saved tickets appear in the history table
+\- Reran the existing classification and input validation tests
+
+**### Verification**
+All 22 automated tests passed using `python -m unittest discover -s tests -v`.
+
+**### Status**
+Completed. The application now has a working browser interface, persistent ticket storage, ticket history, and automated tests covering both the classifier and web application.
+
+**### Limitations**
+Classification still relies on predefined keywords and phrases. The application currently runs locally and does not yet include AI-powered classification, authentication, or deployment.
+
+**### Next steps**
+Improve configuration and security, expand automated test coverage, integrate AI-powered classification, and prepare the application for portfolio presentation.
+
+\----------------------------------------------------------------------------------------------
