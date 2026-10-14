@@ -103,3 +103,6 @@ This project has helped me practise Python functions, conditional logic, input v
 - [Portfolio](https://naveenmenon7.github.io/)
 
 python -m pip install -r requirements.txt
+
+
+**AI integration status:** This project currently uses a mock response service rather than a live AI model. It demonstrates response validation and service integration without requiring external API calls or paid AI services. Local model integration with Ollama is a potential future improvement.

@@ -103,6 +103,7 @@
             </section>
         {% endif %}
 
+        
         {% if category and priority %}
             <section>
                 <h2>Ticket Analysis</h2>
@@ -110,8 +111,23 @@
                 <p><strong>Message:</strong> {{ message }}</p>
                 <p><strong>Category:</strong> {{ category }}</p>
                 <p><strong>Priority:</strong> {{ priority }}</p>
+
+                {% if request.args.get('summary') %}
+                    <p>
+                        <strong>Summary:</strong>
+                        {{ request.args.get('summary') }}
+                    </p>
+                {% endif %}
+
+                {% if request.args.get('suggested_response') %}
+                    <p>
+                        <strong>Suggested Response:</strong>
+                        {{ request.args.get('suggested_response') }}
+                    </p>
+                {% endif %}
             </section>
         {% endif %}
+
 
         
         <hr>

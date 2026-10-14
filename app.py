@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from main import categorize_ticket, determine_priority
 from database import initialize_database, save_ticket, get_all_tickets
+from ai_service import generate_mock_response
 
 app = Flask(__name__)
 
@@ -23,22 +24,28 @@ def home():
 
 
 
+
 @app.route("/classify", methods=["POST"])
 def classify():
     message = request.form.get("message", "")
 
     try:
-        category = categorize_ticket(message)
-        priority = determine_priority(message)
+        result = generate_mock_response(message)
 
-        save_ticket(message.strip(), category, priority)
+        save_ticket(
+            message.strip(),
+            result["category"],
+            result["priority"]
+        )
 
         return redirect(
             url_for(
                 "home",
                 message=message.strip(),
-                category=category,
-                priority=priority
+                category=result["category"],
+                priority=result["priority"],
+                summary=result["summary"],
+                suggested_response=result["suggested_response"]
             )
         )
 
@@ -51,6 +58,7 @@ def classify():
             error=str(error),
             tickets=tickets
         ), 400
+
 
 
 
