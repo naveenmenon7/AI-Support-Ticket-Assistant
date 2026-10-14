@@ -9,51 +9,76 @@ def validate_message(message):
     return message.strip()
 
 
-def categorize_ticket(message):
-    message = validate_message(message).lower() 
 
-    if "refund" in message or "charged" in message or "payment" in message:
+def categorize_ticket(message):
+    message = validate_message(message).lower()
+
+    billing_keywords = ["refund", "charged", "payment"]
+    account_keywords = ["password", "login", "account"]
+    technical_keywords = ["error", "bug", "crash"]
+
+    if any(keyword in message for keyword in billing_keywords):
         return "Billing"
 
-    elif "password" in message or "login" in message or "account" in message:
+    elif any(keyword in message for keyword in account_keywords):
         return "Account Access"
 
-    elif "error" in message or "bug" in message or "crash" in message:
+    elif any(keyword in message for keyword in technical_keywords):
         return "Technical Support"
 
-    else:
-        return "General Inquiry"
+    return "General Inquiry"
+
+
+
 
 
 def determine_priority(message):
-    message = message.lower()
+    message = validate_message(message).lower()
 
-    high_priority_keywords = [
+    high_priority_phrases = [
         "charged twice",
         "payment failed",
-        "crash",
+        "app crashes",
+        "application crashes",
         "not working",
         "urgent",
         "cannot access",
-        ]
+        "account hacked",
+        "account was hacked",
+        "account compromised",
+        "account was compromised",
+    ]
 
-    for keyword in high_priority_keywords:
-        if keyword in message:
-            return "High"
+    negations = ["not ", "never ", "no "]
 
+    for phrase in high_priority_phrases:
+        phrase_position = message.find(phrase)
+
+        if phrase_position == -1:
+            continue
+
+        preceding_text = message[max(0, phrase_position - 10):phrase_position]
+
+        if any(word in preceding_text for word in negations):
+            continue
+
+        return "High"
 
     medium_priority_keywords = [
         "password",
         "login",
         "error",
         "refund",
+        "payment",
+        "account",
     ]
 
-    for keyword in medium_priority_keywords:
-        if keyword in message:
-            return "Medium"
+    if any(keyword in message for keyword in medium_priority_keywords):
+        return "Medium"
 
     return "Low"
+
+
 
 
 if __name__ == "__main__":

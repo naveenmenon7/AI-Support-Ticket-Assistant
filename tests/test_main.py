@@ -52,6 +52,31 @@ class TestTicketClassification(unittest.TestCase):
             categorize_ticket(None)
 
 
+    
+    def test_negated_duplicate_charge_is_not_high(self):
+        message = "I was not charged twice."
+
+        self.assertNotEqual(
+            determine_priority(message),
+            "High"
+        )
+
+    def test_hacked_account_is_high_priority(self):
+        message = "My account was hacked."
+
+        self.assertEqual(
+            determine_priority(message),
+            "High"
+        )
+
+    def test_ordinary_payment_question_is_medium(self):
+        message = "I have a question about my payment."
+
+        self.assertEqual(
+            determine_priority(message),
+            "Medium"
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
