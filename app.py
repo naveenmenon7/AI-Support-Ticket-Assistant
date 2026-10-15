@@ -1,3 +1,8 @@
+import os
+import secrets
+import sqlite3
+from flask import abort
+from database import DATABASE_NAME
 from flask import (
     Flask,
     render_template,
@@ -137,7 +142,29 @@ def trash_ticket(ticket_id):
 def restore_trashed_ticket(ticket_id):
     restore_ticket(ticket_id)
     return redirect(url_for("home"))
+# TEMPORARY: Reset only the ticket ID counter.
+@app.route("/temporary-reset-ticket-counter", methods=["POST"])
+def temporary_reset_ticket_counter():
+    expected_token = os.environ.get("DEMO_RESET_TOKEN", "")
+    provided_token = request.form.get("token", "")
 
+    if not expected_token or not secrets.compare_digest(
+        provided_token, expected_token
+    ):
+        abort(404)
+
+    connection = sqlite3.connect(DATABASE_NAME)
+
+    try:
+        connection.execute(
+            "DELETE FROM sqlite_sequence WHERE name = ?",
+            ("tickets",)
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    return "Ticket ID counter reset. Existing tickets were not deleted."
 
 if __name__ == "__main__":
     app.run(debug=True)
