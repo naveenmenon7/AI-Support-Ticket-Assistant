@@ -1,7 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for
+
+import os
+import secrets
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    abort,
+)
+
 from main import categorize_ticket, determine_priority
 from database import (
     initialize_database,
+    get_connection,
     save_ticket,
     get_all_tickets,
     update_ticket_status,
@@ -11,11 +24,32 @@ from database import (
 )
 from ai_service import generate_mock_response
 
+
 app = Flask(__name__)
 
 initialize_database()
 
 
+# TEMPORARY: Remove this route after resetting the live demo database.
+@app.route("/temporary-demo-reset", methods=["POST"])
+def temporary_demo_reset():
+    expected_token = os.environ.get("DEMO_RESET_TOKEN", "")
+    provided_token = request.form.get("token", "")
+
+    if not expected_token or not secrets.compare_digest(
+        provided_token, expected_token
+    ):
+        abort(404)
+
+    connection = get_connection()
+
+    try:
+        connection.execute("DELETE FROM tickets")
+        connection.commit()
+    finally:
+        connection.close()
+
+    return "Demo tickets cleared successfully."
 
 
 @app.route("/")
@@ -36,7 +70,7 @@ def home():
     tickets = get_all_tickets(
         search=search,
         status=status,
-        view=view
+        view=view,
     )
 
     return render_template(
@@ -50,12 +84,8 @@ def home():
         priority=request.args.get("priority"),
         summary=request.args.get("summary"),
         suggested_response=request.args.get("suggested_response"),
-        error=request.args.get("error")
+        error=request.args.get("error"),
     )
-
-
-
-
 
 
 @app.route("/classify", methods=["POST"])
@@ -68,7 +98,7 @@ def classify():
         save_ticket(
             message.strip(),
             result["category"],
-            result["priority"]
+            result["priority"],
         )
 
         return redirect(
@@ -78,7 +108,7 @@ def classify():
                 category=result["category"],
                 priority=result["priority"],
                 summary=result["summary"],
-                suggested_response=result["suggested_response"]
+                suggested_response=result["suggested_response"],
             )
         )
 
@@ -89,10 +119,10 @@ def classify():
             "index.html",
             message=message,
             error=str(error),
-            tickets=tickets
+            tickets=tickets,
         ), 400
 
-    
+
 @app.route("/tickets/<int:ticket_id>/status", methods=["POST"])
 def change_ticket_status(ticket_id):
     status = request.form.get("status", "")
@@ -101,12 +131,22 @@ def change_ticket_status(ticket_id):
     try:
         updated = update_ticket_status(ticket_id, status)
     except ValueError:
-        return redirect(url_for("home", error="Invalid ticket status."))
+        return redirect(
+            url_for("home", error="Invalid ticket status.")
+        )
 
     if not updated:
-        return redirect(url_for("home", error="Ticket could not be updated."))
+        return redirect(
+            url_for("home", error="Ticket could not be updated.")
+        )
 
-    return redirect(return_to if return_to.startswith("/") and not return_to.startswith("//") else url_for("home"))
+    safe_return_to = (
+        return_to
+        if return_to.startswith("/") and not return_to.startswith("//")
+        else url_for("home")
+    )
+
+    return redirect(safe_return_to)
 
 
 @app.route("/tickets/<int:ticket_id>/spam", methods=["POST"])
@@ -125,9 +165,6 @@ def trash_ticket(ticket_id):
 def restore_trashed_ticket(ticket_id):
     restore_ticket(ticket_id)
     return redirect(url_for("home"))
-
-
-
 
 
 if __name__ == "__main__":
