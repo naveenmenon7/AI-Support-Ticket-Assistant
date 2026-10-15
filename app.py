@@ -1,8 +1,3 @@
-import os
-import secrets
-import sqlite3
-from flask import abort
-from database import DATABASE_NAME
 from flask import (
     Flask,
     render_template,
