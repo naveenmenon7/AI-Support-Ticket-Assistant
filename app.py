@@ -1,20 +1,13 @@
-
-import os
-import secrets
-
 from flask import (
     Flask,
     render_template,
     request,
     redirect,
     url_for,
-    abort,
 )
 
-from main import categorize_ticket, determine_priority
 from database import (
     initialize_database,
-    get_connection,
     save_ticket,
     get_all_tickets,
     update_ticket_status,
@@ -22,34 +15,13 @@ from database import (
     move_ticket_to_trash,
     restore_ticket,
 )
+
 from ai_service import generate_mock_response
 
 
 app = Flask(__name__)
 
 initialize_database()
-
-
-# TEMPORARY: Remove this route after resetting the live demo database.
-@app.route("/temporary-demo-reset", methods=["POST"])
-def temporary_demo_reset():
-    expected_token = os.environ.get("DEMO_RESET_TOKEN", "")
-    provided_token = request.form.get("token", "")
-
-    if not expected_token or not secrets.compare_digest(
-        provided_token, expected_token
-    ):
-        abort(404)
-
-    connection = get_connection()
-
-    try:
-        connection.execute("DELETE FROM tickets")
-        connection.commit()
-    finally:
-        connection.close()
-
-    return "Demo tickets cleared successfully."
 
 
 @app.route("/")
@@ -117,9 +89,9 @@ def classify():
 
         return render_template(
             "index.html",
+            tickets=tickets,
             message=message,
             error=str(error),
-            tickets=tickets,
         ), 400
 
 
