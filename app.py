@@ -142,6 +142,7 @@ def trash_ticket(ticket_id):
 def restore_trashed_ticket(ticket_id):
     restore_ticket(ticket_id)
     return redirect(url_for("home"))
+
 # TEMPORARY: Reset only the ticket ID counter.
 @app.route("/temporary-reset-ticket-counter", methods=["POST"])
 def temporary_reset_ticket_counter():
